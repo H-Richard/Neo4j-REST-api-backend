@@ -10,11 +10,11 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 
-public class AddActor implements HttpHandler{
+public class AddMovie implements HttpHandler{
   
   Driver driver;
   
-  public AddActor(Driver driver) {
+  public AddMovie(Driver driver) {
     this.driver = driver;
   }
   
@@ -22,8 +22,8 @@ public class AddActor implements HttpHandler{
   public void handle(HttpExchange exchange) {
     try {
       if (exchange.getRequestMethod().equals("PUT")) {
-          handlePut(exchange);
-      }
+        handlePut(exchange);
+    }
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -34,8 +34,8 @@ public class AddActor implements HttpHandler{
     JSONObject deseralized = new JSONObject(body);
     try {
       String name = deseralized.getString("name");
-      String actorId = deseralized.getString("actorId");
-      addActor(name, actorId, exchange);
+      String movieId = deseralized.getString("movieId");
+      addActor(name, movieId, exchange);
       exchange.sendResponseHeaders(200, 0);
     } catch (Exception e) {
       exchange.sendResponseHeaders(400, 0);
@@ -43,9 +43,9 @@ public class AddActor implements HttpHandler{
     }
   }
   
-  public void addActor(String name, String actorID, HttpExchange exchange) {
+  public void addActor(String name, String movieId, HttpExchange exchange) {
     try (Session session = driver.session()) {
-      session.run(String.format("CREATE (n:actor {name: \"%s\", actorId: \"%s\"})", name, actorID));
+      session.run(String.format("CREATE (n:movie {name: \"%s\", movieId: \"%s\"})", name, movieId));
     }
   }
 }

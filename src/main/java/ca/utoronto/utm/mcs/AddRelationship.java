@@ -10,11 +10,11 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 
-public class AddActor implements HttpHandler{
+public class AddRelationship implements HttpHandler{
   
   Driver driver;
   
-  public AddActor(Driver driver) {
+  public AddRelationship(Driver driver) {
     this.driver = driver;
   }
   
@@ -22,8 +22,8 @@ public class AddActor implements HttpHandler{
   public void handle(HttpExchange exchange) {
     try {
       if (exchange.getRequestMethod().equals("PUT")) {
-          handlePut(exchange);
-      }
+        handlePut(exchange);
+    }
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -33,9 +33,9 @@ public class AddActor implements HttpHandler{
     String body = Utils.convert(exchange.getRequestBody());
     JSONObject deseralized = new JSONObject(body);
     try {
-      String name = deseralized.getString("name");
       String actorId = deseralized.getString("actorId");
-      addActor(name, actorId, exchange);
+      String movieId = deseralized.getString("movieId");
+      addRelationship(actorId, movieId, exchange);
       exchange.sendResponseHeaders(200, 0);
     } catch (Exception e) {
       exchange.sendResponseHeaders(400, 0);
@@ -43,9 +43,12 @@ public class AddActor implements HttpHandler{
     }
   }
   
-  public void addActor(String name, String actorID, HttpExchange exchange) {
+  public void addRelationship(String actorId, String movieId, HttpExchange exchange) {
     try (Session session = driver.session()) {
-      session.run(String.format("CREATE (n:actor {name: \"%s\", actorId: \"%s\"})", name, actorID));
+      session.run(String.format("MATCH (a:actor),(b:movie)"
+          + "WHERE a.actorId = \"%s\" AND b.movieID = \"%s\""
+          + "CREATE (a)-[:ACTED_IN]->(b)", actorId, movieId));
+      System.out.println("IT WORKED!");
     }
   }
 }
