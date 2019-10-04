@@ -18,3 +18,28 @@ Setup `App.java` as follows:
 Driver driver = GraphDatabase.driver("bolt://localhost:7687", 
                                             AuthTokens.basic("neo4j", "your password here"));
 ```
+
+
+```
+PUT /api/v1/addActor
+```
+
+Request Body:
+
+```Json
+{
+  "name": "Emma Stone",
+  "actorId": "9348"
+}
+```
+
+Response:
+
+- 200 OK for a successful add
+- 400 BAD REQUEST if the request body is improperly formatted or missing required information
+- 500 INTERNAL SERVER ERROR if save or add was unsuccessful (Java Exception is thrown)
+
+
+```
+PUT /api/v1/addMovie
+```
