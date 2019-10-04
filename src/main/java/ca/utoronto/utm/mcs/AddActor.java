@@ -43,9 +43,11 @@ public class AddActor implements HttpHandler{
     }
   }
   
-  public void addActor(String name, String actorID, HttpExchange exchange) {
+  public void addActor(String name, String actorID, HttpExchange exchange) throws IOException {
     try (Session session = driver.session()) {
       session.run(String.format("CREATE (n:actor {name: \"%s\", actorId: \"%s\"})", name, actorID));
+    } catch (Exception e) {
+    	exchange.sendResponseHeaders(500, 0);
     }
   }
 }

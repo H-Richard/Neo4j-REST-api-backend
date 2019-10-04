@@ -43,12 +43,13 @@ public class AddRelationship implements HttpHandler{
     }
   }
   
-  public void addRelationship(String actorId, String movieId, HttpExchange exchange) {
+  public void addRelationship(String actorId, String movieId, HttpExchange exchange) throws IOException {
     try (Session session = driver.session()) {
       session.run(String.format("MATCH (a:actor),(b:movie)"
-          + "WHERE a.actorId = \"%s\" AND b.movieID = \"%s\""
-          + "CREATE (a)-[:ACTED_IN]->(b)", actorId, movieId));
-      System.out.println("IT WORKED!");
+          + "WHERE a.actorId = '%s' AND b.movieId = '%s'"
+          + "CREATE (a)-[rel:ACTED_IN]->(b)", actorId, movieId));
+    } catch (Exception e) {
+    	exchange.sendResponseHeaders(500, 0);
     }
   }
 }

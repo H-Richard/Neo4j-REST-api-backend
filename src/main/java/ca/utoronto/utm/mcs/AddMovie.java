@@ -43,9 +43,11 @@ public class AddMovie implements HttpHandler{
     }
   }
   
-  public void addActor(String name, String movieId, HttpExchange exchange) {
+  public void addActor(String name, String movieId, HttpExchange exchange) throws IOException {
     try (Session session = driver.session()) {
       session.run(String.format("CREATE (n:movie {name: \"%s\", movieId: \"%s\"})", name, movieId));
+    } catch (Exception e) {
+    	exchange.sendResponseHeaders(500, 0);
     }
   }
 }
