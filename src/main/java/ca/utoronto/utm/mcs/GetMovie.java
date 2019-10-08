@@ -22,11 +22,11 @@ import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
-public class GetActor implements HttpHandler{
+public class GetMovie implements HttpHandler{
   
   Driver driver;
   
-  public GetActor(Driver driver) {
+  public GetMovie(Driver driver) {
     this.driver = driver;
   }
   
@@ -46,14 +46,14 @@ public class GetActor implements HttpHandler{
     JSONObject deseralized = new JSONObject(body);
     try {
       String actorId = deseralized.getString("actorId");
-      getActor(actorId, exchange);
+      getMovie(actorId, exchange);
     } catch (Exception e) {
       exchange.sendResponseHeaders(400, 0);
       e.printStackTrace();
     }
   }
   
-  public void getActor(String actorId, HttpExchange exchange) throws IOException {
+  public void getMovie(String actorId, HttpExchange exchange) throws IOException {
     try (Session session = driver.session()) {
     	String response = session.writeTransaction( new TransactionWork<String>()
         {
