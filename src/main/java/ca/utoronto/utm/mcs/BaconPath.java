@@ -22,11 +22,11 @@ import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
-public class HasRelationship implements HttpHandler{
+public class BaconPath implements HttpHandler{
   
   Driver driver;
   
-  public HasRelationship(Driver driver) {
+  public BaconPath(Driver driver) {
     this.driver = driver;
   }
   
@@ -46,15 +46,14 @@ public class HasRelationship implements HttpHandler{
     JSONObject deseralized = new JSONObject(body);
     try {
       String actorId = deseralized.getString("actorId");
-      String movieId = deseralized.getString("movieId");
-      getActor(actorId, movieId, exchange);
+      getPath(actorId, exchange);
     } catch (Exception e) {
       exchange.sendResponseHeaders(400, 0);
       e.printStackTrace();
     }
   }
   
-  public void getActor(String actorId, String movieId, HttpExchange exchange) throws IOException {
+  public void getPath(String actorId, HttpExchange exchange) throws IOException {
     try (Session session = driver.session()) {
     	String response = session.writeTransaction( new TransactionWork<String>()
         {
@@ -62,31 +61,37 @@ public class HasRelationship implements HttpHandler{
             public String execute( Transaction tx )
             {
             	JSONObject json = new JSONObject();
-            	StatementResult actor = tx.run(String.format("MATCH (n:actor) WHERE n.actorId = '%s' RETURN n.name", actorId));
-            	StatementResult movie = tx.run(String.format("MATCH (n:movie) WHERE n.movieId = '%s' RETURN n.name", movieId));
-            	StatementResult exists = tx.run(String.format("RETURN EXISTS( (:actor {actorId: '%s'})-[:ACTED_IN]-(:movie {moveId: %s}) ) AS a", actorId, movieId));
-            	if(actor.hasNext() && movie.hasNext()) {
-            		try {
-    	            	json.put("actorId", actorId);
-    	            	json.put("movieId", movieId);
-    	            	json.put("hasRelationship", new Boolean(exists.next().get("a", "")));
-                	} catch (Exception e) {
-                		e.printStackTrace();
-                	}
-            		return json.toString();
-            	}
-            	else {
+            	StatementResult result = tx.run(String.format("MATCH p=shortestPath((n:actor {name: 'Kevin Bacon'})-[rel:ACTED_IN*]-(b:actor {actorId: '%s'})) RETURN rel, length(p);", actorId));
+            	JSONArray array = new JSONArray();
+            	Record record;
+            	if(!result.hasNext()) {
             		return "";
             	}
-            	
-                
+            	while(result.hasNext()) {
+            		record = result.next();
+            		array.put(record);
+            	}
+            	JSONArray r = new JSONArray();
+                for (int i = array.length()-1; i >= 0; i--) {
+                	try {
+						r.put(array.get(i));
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+                }
+            	try {
+					json.put("baconPath", array);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+            	return json.toString();
             }
         } );
     	if(!response.isEmpty()) {
           exchange.sendResponseHeaders(200, response.length()); 
     	}
     	else {
-    	  exchange.sendResponseHeaders(400, response.length());
+    	  exchange.sendResponseHeaders(404, response.length());
     	}
     	OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
