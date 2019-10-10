@@ -45,7 +45,6 @@ public class AddActor implements HttpHandler{
       String actorId = deseralized.getString("actorId");
       String query = "CREATE (n:actor {name: \"%s\", actorId: \"%s\"})";
       Utils.queryCreate(this.driver, query, name, actorId, exchange);
-      exchange.sendResponseHeaders(200, 0);
     } catch (Exception e) {
       exchange.sendResponseHeaders(400, 0);
       e.printStackTrace();

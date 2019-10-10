@@ -40,7 +40,6 @@ public class AddMovie implements HttpHandler {
 			String movieId = deseralized.getString("movieId");
 			String query = "CREATE (n:movie {name: \"%s\", movieId: \"%s\"})";
 			Utils.queryCreate(this.driver, query, name, movieId, exchange);
-			exchange.sendResponseHeaders(200, 0);
 		} catch (Exception e) {
 			exchange.sendResponseHeaders(400, 0);
 			e.printStackTrace();

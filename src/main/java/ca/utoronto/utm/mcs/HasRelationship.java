@@ -22,11 +22,11 @@ import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
-public class GetActor implements HttpHandler{
+public class HasRelationship implements HttpHandler{
   
   Driver driver;
   
-  public GetActor(Driver driver) {
+  public HasRelationship(Driver driver) {
     this.driver = driver;
   }
   
@@ -46,14 +46,15 @@ public class GetActor implements HttpHandler{
     JSONObject deseralized = new JSONObject(body);
     try {
       String actorId = deseralized.getString("actorId");
-      getActor(actorId, exchange);
+      String movieId = deseralized.getString("movieId");
+      getActor(actorId, movieId, exchange);
     } catch (Exception e) {
       exchange.sendResponseHeaders(400, 0);
       e.printStackTrace();
     }
   }
   
-  public void getActor(String actorId, HttpExchange exchange) throws IOException {
+  public void getActor(String actorId, String movieId, HttpExchange exchange) throws IOException {
     try (Session session = driver.session()) {
     	String response = session.writeTransaction( new TransactionWork<String>()
         {
@@ -61,8 +62,7 @@ public class GetActor implements HttpHandler{
             public String execute( Transaction tx )
             {
             	JSONObject json = new JSONObject();
-            	StatementResult name = tx.run(String.format("MATCH (n:actor) WHERE n.actorId = '%s' RETURN n.name", actorId));
-            	StatementResult movies = tx.run(String.format("match (a:actor {actorId: '%s'})-[r:ACTED_IN]->(m:movie) return m.movieId;", actorId));
+            	StatementResult exists = tx.run(String.format("RETURN EXISTS( (a:actor {actorId: '%s'})-[:ACTED_IN]-(:movie {moveId: %s}) )", actorId));
             	Record record;
             	try {
 	            	json.put("actorId", actorId);
