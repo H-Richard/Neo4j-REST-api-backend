@@ -17,7 +17,8 @@ public class App
         Driver driver = GraphDatabase.driver("bolt://localhost:7687", 
                                             AuthTokens.basic("neo4j", "password"));
         Session session = driver.session();
-        session.run("CREATE CONSTRAINT ON (n:actor), (b:movies) ASSERT n.actorId, b,movieId IS UNIQUE");
+        session.run("CREATE CONSTRAINT ON (n:actor)ASSERT n.actorId IS UNIQUE");
+        session.run("CREATE CONSTRAINT ON (b:movie) ASSERT b.movieId IS UNIQUE");
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", PORT), 0);
         server.createContext("/api/v1/addActor", new AddActor(driver));
         server.createContext("/api/v1/addMovie", new AddMovie(driver));

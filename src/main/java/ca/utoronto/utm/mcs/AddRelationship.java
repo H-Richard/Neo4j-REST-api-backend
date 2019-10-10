@@ -41,7 +41,6 @@ public class AddRelationship implements HttpHandler {
 			String query = "MATCH (a:actor),(b:movie)" + "WHERE a.actorId = '%s' AND b.movieId = '%s'"
 					+ "CREATE (a)-[rel:ACTED_IN]->(b)";
 			Utils.queryCreate(this.driver, query, actorId, movieId, exchange);
-			exchange.sendResponseHeaders(200, 0);
 		} catch (Exception e) {
 			exchange.sendResponseHeaders(400, 0);
 			e.printStackTrace();

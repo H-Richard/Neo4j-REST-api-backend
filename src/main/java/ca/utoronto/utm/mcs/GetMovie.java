@@ -23,14 +23,14 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 public class GetMovie implements HttpHandler{
-  
+
   Driver driver;
-  
+
   public GetMovie(Driver driver) {
     this.driver = driver;
   }
-  
-  
+
+
   public void handle(HttpExchange exchange) {
     try {
       if (exchange.getRequestMethod().equals("GET")) {
@@ -40,7 +40,7 @@ public class GetMovie implements HttpHandler{
       e.printStackTrace();
     }
   }
-  
+
   public void handleGet(HttpExchange exchange) throws IOException, JSONException {
     String body = Utils.convert(exchange.getRequestBody());
     JSONObject deseralized = new JSONObject(body);
@@ -52,7 +52,7 @@ public class GetMovie implements HttpHandler{
       e.printStackTrace();
     }
   }
-  
+
   public void getMovie(String movieId, HttpExchange exchange) throws IOException {
     try (Session session = driver.session()) {
     	String response = session.writeTransaction( new TransactionWork<String>()
@@ -62,7 +62,7 @@ public class GetMovie implements HttpHandler{
             {
             	JSONObject json = new JSONObject();
             	StatementResult name = tx.run(String.format("MATCH (n:movie) WHERE n.movieId = '%s' RETURN n.name", movieId));
-            	StatementResult actors = tx.run(String.format("MATCH (m:movie {movieId: '01'})<-[r:ACTED_IN]-(a:actor) RETURN a.actorId", movieId));
+            	StatementResult actors = tx.run(String.format("match (m:movie {movieId: '%s'})<-[r:ACTED_IN]-(a:actor) return a.actorId;", movieId));
             	Record record;
             	try {
 	            	json.put("movieId", movieId);
@@ -82,10 +82,17 @@ public class GetMovie implements HttpHandler{
                 return json.toString();
             }
         } );
-    	exchange.sendResponseHeaders(200, response.length());
-    	OutputStream os = exchange.getResponseBody();
-    	os.write(response.getBytes());
-    	os.close();
+    	System.out.println(response);
+    	if(response.contains("\"name\":")) {
+          exchange.sendResponseHeaders(200, response.length());
+        }
+        else {
+          response = "";
+          exchange.sendResponseHeaders(400, response.length());
+        }
+        OutputStream os = exchange.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
     } catch (Exception e) {
     	e.printStackTrace();
     	exchange.sendResponseHeaders(500, 0);
