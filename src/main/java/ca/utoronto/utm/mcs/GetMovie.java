@@ -45,15 +45,15 @@ public class GetMovie implements HttpHandler{
     String body = Utils.convert(exchange.getRequestBody());
     JSONObject deseralized = new JSONObject(body);
     try {
-      String actorId = deseralized.getString("actorId");
-      getMovie(actorId, exchange);
+      String movieId = deseralized.getString("movieId");
+      getMovie(movieId, exchange);
     } catch (Exception e) {
       exchange.sendResponseHeaders(400, 0);
       e.printStackTrace();
     }
   }
   
-  public void getMovie(String actorId, HttpExchange exchange) throws IOException {
+  public void getMovie(String movieId, HttpExchange exchange) throws IOException {
     try (Session session = driver.session()) {
     	String response = session.writeTransaction( new TransactionWork<String>()
         {
@@ -61,21 +61,21 @@ public class GetMovie implements HttpHandler{
             public String execute( Transaction tx )
             {
             	JSONObject json = new JSONObject();
-            	StatementResult name = tx.run(String.format("MATCH (n:actor) WHERE n.actorId = '%s' RETURN n.name", actorId));
-            	StatementResult movies = tx.run(String.format("match (a:actor {actorId: '%s'})-[r:ACTED_IN]->(m:movie) return m.movieId;", actorId));
+            	StatementResult name = tx.run(String.format("MATCH (n:movie) WHERE n.movieId = '%s' RETURN n.name", movieId));
+            	StatementResult actors = tx.run(String.format("MATCH (m:movie {movieId: '01'})<-[r:ACTED_IN]-(a:actor) RETURN a.actorId", movieId));
             	Record record;
             	try {
-	            	json.put("actorId", actorId);
+	            	json.put("movieId", movieId);
 	            	while(name.hasNext()) {
 	            		record = name.next();
 	            		json.put("name", record.get("n.name", ""));
 	            	}
 	            	JSONArray array = new JSONArray();
-	            	while(movies.hasNext()) {
-	            		record = movies.next();
-	            		array.put(record.get("m.movieId", ""));
+	            	while(actors.hasNext()) {
+	            		record = actors.next();
+	            		array.put(record.get("a.actorId", ""));
 	            	}
-	            	json.put("movies", array);
+	            	json.put("actors", array);
             	} catch (Exception e) {
             		e.printStackTrace();
             	}

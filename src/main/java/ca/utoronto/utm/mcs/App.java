@@ -23,6 +23,7 @@ public class App
         server.createContext("/api/v1/addMovie", new AddMovie(driver));
         server.createContext("/api/v1/addRelationship", new AddRelationship(driver));
         server.createContext("/api/v1/getActor", new GetActor(driver));
+        server.createContext("/api/v1/getMovie", new GetMovie(driver));
         
         server.start();
         System.out.printf("Server started on port %d...\n", PORT);
