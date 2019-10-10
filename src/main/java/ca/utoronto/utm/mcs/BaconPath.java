@@ -61,24 +61,17 @@ public class BaconPath implements HttpHandler{
             public String execute( Transaction tx )
             {
             	JSONObject json = new JSONObject();
-            	StatementResult result = tx.run(String.format("MATCH p=shortestPath((n:actor {name: 'Kevin Bacon'})-[rel:ACTED_IN*]-(b:actor {actorId: '%s'})) RETURN rel, length(p);", actorId));
+            	StatementResult result = tx.run(String.format("MATCH p=shortestPath((n:actor {name: 'Kevin Bacon'})-[rel:ACTED_IN*]-(b:actor {actorId: '%s'})) RETURN rel;", actorId));
             	JSONArray array = new JSONArray();
-            	Record record;
+            	
             	if(!result.hasNext()) {
             		return "";
             	}
-            	while(result.hasNext()) {
-            		record = result.next();
-            		array.put(record);
+            	else {
+            		Record record = result.next();
+            		int size = record.get(0).size();
             	}
-            	JSONArray r = new JSONArray();
-                for (int i = array.length()-1; i >= 0; i--) {
-                	try {
-						r.put(array.get(i));
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-                }
+            	//record.get(0).get(0).get("actorId", "")
             	try {
 					json.put("baconPath", array);
 				} catch (JSONException e) {
