@@ -4,6 +4,7 @@ import static org.neo4j.driver.v1.Values.parameters;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 
 import org.json.*;
 import org.neo4j.driver.v1.Driver;
@@ -16,7 +17,7 @@ import org.neo4j.driver.v1.TransactionWork;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
@@ -70,13 +71,25 @@ public class BaconPath implements HttpHandler{
             	else {
             		Record record = result.next();
             		int size = record.get(0).size();
+            		ArrayList<JSONObject> tmp = new ArrayList<JSONObject>();
+            		for(int i = 0;i<size;i++) {
+            			JSONObject o = new JSONObject();
+            			try {
+							o.put("actorId", record.get(0).get(i).get("actorId", ""));
+							o.put("movieId", record.get(0).get(i).get("movieId", ""));
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+            			tmp.add(o);
+            		}
+            		Collections.reverse(tmp);
+            		System.out.println(tmp);
+            		try {
+    					json.put("baconPath", tmp);
+    				} catch (JSONException e) {
+    					e.printStackTrace();
+    				}
             	}
-            	//record.get(0).get(0).get("actorId", "")
-            	try {
-					json.put("baconPath", array);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
             	return json.toString();
             }
         } );
