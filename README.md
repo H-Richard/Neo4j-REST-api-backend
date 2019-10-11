@@ -13,7 +13,7 @@ MERGE (:movie {movieId:row[0],  name: row[2]});
 
 LOAD CSV FROM "file:///relationships.tsv" AS row FIELDTERMINATOR '\t'
 MATCH (a:actor),(m:movie)
-WHERE a.actorId = row[2] AND WHERE m.movieId = row[0]
+WHERE a.actorId = row[2] AND m.movieId = row[0]
 CREATE (a)-[REL:ACTED_IN]->(m);
 ```
 
