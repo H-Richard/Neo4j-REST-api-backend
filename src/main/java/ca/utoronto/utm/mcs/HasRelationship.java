@@ -29,8 +29,7 @@ public class HasRelationship implements HttpHandler{
   public HasRelationship(Driver driver) {
     this.driver = driver;
   }
-  
-  
+
   public void handle(HttpExchange exchange) {
     try {
       if (exchange.getRequestMethod().equals("GET")) {
@@ -78,8 +77,6 @@ public class HasRelationship implements HttpHandler{
             	else {
             		return "";
             	}
-            	
-                
             }
         } );
     	if(!response.isEmpty()) {

@@ -84,7 +84,6 @@ public class GetActor implements HttpHandler{
         } );
     	if(response.contains("\"name\":")) {
           exchange.sendResponseHeaders(200, response.length());
-          
     	}
     	else {
     	  response = "";

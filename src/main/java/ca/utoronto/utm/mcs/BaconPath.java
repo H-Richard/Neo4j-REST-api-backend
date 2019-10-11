@@ -30,8 +30,7 @@ public class BaconPath implements HttpHandler{
   public BaconPath(Driver driver) {
     this.driver = driver;
   }
-  
-  
+
   public void handle(HttpExchange exchange) {
     try {
       if (exchange.getRequestMethod().equals("GET")) {
