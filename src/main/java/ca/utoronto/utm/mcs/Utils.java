@@ -24,6 +24,31 @@ public class Utils {
       return br.lines().collect(Collectors.joining(System.lineSeparator()));
     }
   }
+  
+  public static boolean exists(Driver driver, String query, String p) {
+	  try (Session session = driver.session()) {
+	      String transaction = session.writeTransaction(new TransactionWork<String>() {
+	        @Override
+	        public String execute(Transaction tx) {
+	          StatementResult result = tx.run(String.format(query, p));
+	          return result.next().get("actorId", "");
+	        }
+	      });
+	      if(transaction.isEmpty()) {
+	    	  return false;
+	      }
+	      return true;
+	    } catch (Exception e) {
+	    	return false;
+	    }
+	  }
+  
+  public static void sendEmptyBody(HttpExchange exchange) throws IOException {
+	  String response = "";
+	  OutputStream os = exchange.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+  }
 
   public static void queryCreate(Driver driver, String query, String p1, String p2,
       HttpExchange exchange) throws IOException {

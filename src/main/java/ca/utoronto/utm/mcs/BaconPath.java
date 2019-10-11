@@ -47,9 +47,17 @@ public class BaconPath implements HttpHandler{
     JSONObject deseralized = new JSONObject(body);
     try {
       String actorId = deseralized.getString("actorId");
-      getPath(actorId, exchange);
+      
+      if(Utils.exists(driver, "MATCH (n:actor) WHERE n.actorId = '%s' return n", actorId)) {
+    	  getPath(actorId, exchange);
+      }
+      else {
+    	  exchange.sendResponseHeaders(404, 0);
+    	  Utils.sendEmptyBody(exchange);
+      }
     } catch (Exception e) {
       exchange.sendResponseHeaders(400, 0);
+      Utils.sendEmptyBody(exchange);
       e.printStackTrace();
     }
   }
@@ -83,8 +91,8 @@ public class BaconPath implements HttpHandler{
             			tmp.add(o);
             		}
             		Collections.reverse(tmp);
-            		System.out.println(tmp);
             		try {
+            			json.put("baconNumber", size / 2);
     					json.put("baconPath", tmp);
     				} catch (JSONException e) {
     					e.printStackTrace();
@@ -105,6 +113,7 @@ public class BaconPath implements HttpHandler{
     } catch (Exception e) {
     	e.printStackTrace();
     	exchange.sendResponseHeaders(500, 0);
+    	Utils.sendEmptyBody(exchange);
     }
   }
 }
