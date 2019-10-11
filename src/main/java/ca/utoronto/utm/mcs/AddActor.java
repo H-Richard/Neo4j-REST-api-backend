@@ -26,7 +26,6 @@ public class AddActor implements HttpHandler{
     this.driver = driver;
   }
   
-  
   public void handle(HttpExchange exchange) {
     try {
       if (exchange.getRequestMethod().equals("PUT")) {

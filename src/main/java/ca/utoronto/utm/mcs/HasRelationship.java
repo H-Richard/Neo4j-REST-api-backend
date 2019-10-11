@@ -29,8 +29,7 @@ public class HasRelationship implements HttpHandler{
   public HasRelationship(Driver driver) {
     this.driver = driver;
   }
-  
-  
+
   public void handle(HttpExchange exchange) {
     try {
       if (exchange.getRequestMethod().equals("GET")) {
@@ -62,8 +61,10 @@ public class HasRelationship implements HttpHandler{
             public String execute( Transaction tx )
             {
             	JSONObject json = new JSONObject();
-            	StatementResult actor = tx.run(String.format("MATCH (n:actor) WHERE n.actorId = '%s' RETURN n.name", actorId));
-            	StatementResult movie = tx.run(String.format("MATCH (n:movie) WHERE n.movieId = '%s' RETURN n.name", movieId));
+            	StatementResult actor = tx.run(String.format("MATCH (n:actor)" +
+                        "WHERE n.actorId = '%s' RETURN n.name", actorId));
+            	StatementResult movie = tx.run(String.format("MATCH (n:movie)" +
+                        " WHERE n.movieId = '%s' RETURN n.name", movieId));
             	StatementResult exists = tx.run(String.format("RETURN EXISTS( (:actor {actorId: '%s'})-[:ACTED_IN]-(:movie {moveId: %s}) ) AS a", actorId, movieId));
             	if(actor.hasNext() && movie.hasNext()) {
             		try {
@@ -78,8 +79,6 @@ public class HasRelationship implements HttpHandler{
             	else {
             		return "";
             	}
-            	
-                
             }
         } );
     	if(!response.isEmpty()) {
