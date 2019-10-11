@@ -41,7 +41,7 @@ public class AddRelationship implements HttpHandler {
 			String actorId = deseralized.getString("actorId");
 			String movieId = deseralized.getString("movieId");
 			String query = "MATCH (a:actor),(b:movie)" + "WHERE a.actorId = '%1$s' AND b.movieId = '%2$s'"
-					+ "MERGE (a)-[rel:ACTED_IN { actorId: '%1$s', movieId: '%2$s' } ]->(b)";
+					+ "MERGE (a)-[rel:ACTED_IN]->(b)";
 			Utils.queryCreate(this.driver, query, actorId, movieId, exchange);
 		} catch (Exception e) {
 			exchange.sendResponseHeaders(400, 0);
