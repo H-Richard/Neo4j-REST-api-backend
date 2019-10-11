@@ -22,13 +22,15 @@ public class AddMovie implements HttpHandler {
 		this.driver = driver;
 	}
 
-	public void handle(HttpExchange exchange) {
+	public void handle(HttpExchange exchange) throws IOException {
 		try {
 			if (exchange.getRequestMethod().equals("PUT")) {
 				handlePut(exchange);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			exchange.sendResponseHeaders(400, 0);
+			Utils.sendEmptyBody(exchange);
 		}
 	}
 
