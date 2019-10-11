@@ -2,6 +2,21 @@
 
 A Neo4j REST-api built with Java.
 
+## IMPORTS
+
+```cypher
+LOAD CSV FROM "file:///actors.tsv" AS row FIELDTERMINATOR '\t'
+MERGE (:actor {actorId:row[0],  name: row[1]});
+
+LOAD CSV FROM "file:///movies.tsv" AS row FIELDTERMINATOR '\t'
+MERGE (:movie {movieId:row[0],  name: row[2]});
+
+LOAD CSV FROM "file:///relationships.tsv" AS row FIELDTERMINATOR '\t'
+MATCH (a:actor),(m:movie)
+WHERE a.actorId = row[2] AND WHERE m.movieId = row[0]
+CREATE (a)-[REL:ACTED_IN]->(m);
+```
+
 ## Usage
 
 Clone the repo
