@@ -27,6 +27,7 @@ public class App
         server.createContext("/api/v1/getMovie", new GetMovie(driver));
         server.createContext("/api/v1/hasRelationship", new HasRelationship(driver));
         server.createContext("/api/v1/computeBaconPath", new BaconPath(driver));
+        server.createContext("/api/v1/computeBaconNumber", new BaconNumber(driver));
         
         server.start();
         System.out.printf("Server started on port %d...\n", PORT);

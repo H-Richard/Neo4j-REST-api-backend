@@ -31,7 +31,8 @@ public class Utils {
 	        @Override
 	        public String execute(Transaction tx) {
 	          StatementResult result = tx.run(String.format(query, p));
-	          return result.next().get("actorId", "");
+	          Record record = result.next();
+	          return record.get("n.actorId", "");
 	        }
 	      });
 	      if(transaction.isEmpty()) {

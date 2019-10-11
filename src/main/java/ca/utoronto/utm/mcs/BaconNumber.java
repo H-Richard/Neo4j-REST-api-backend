@@ -23,11 +23,11 @@ import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
-public class BaconPath implements HttpHandler{
+public class BaconNumber implements HttpHandler{
   
   Driver driver;
   
-  public BaconPath(Driver driver) {
+  public BaconNumber(Driver driver) {
     this.driver = driver;
   }
   
@@ -70,33 +70,18 @@ public class BaconPath implements HttpHandler{
             public String execute( Transaction tx )
             {
             	JSONObject json = new JSONObject();
-            	StatementResult result = tx.run(String.format("MATCH p=shortestPath((n:actor {name: 'Kevin Bacon'})-[rel:ACTED_IN*]-(b:actor {actorId: '%s'})) RETURN rel;", actorId));
-            	JSONArray array = new JSONArray();
-            	
+            	StatementResult result = tx.run(String.format("MATCH p=shortestPath((n:actor {name: 'Kevin Bacon'})-[rel:ACTED_IN*]-(b:actor {actorId: '%s'})) RETURN length(p);", actorId));
+
             	if(!result.hasNext()) {
             		return "";
             	}
             	else {
             		Record record = result.next();
-            		int size = record.get(0).size();
-            		ArrayList<JSONObject> tmp = new ArrayList<JSONObject>();
-            		for(int i = 0;i<size;i++) {
-            			JSONObject o = new JSONObject();
-            			try {
-							o.put("actorId", record.get(0).get(i).get("actorId", ""));
-							o.put("movieId", record.get(0).get(i).get("movieId", ""));
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-            			tmp.add(o);
-            		}
-            		Collections.reverse(tmp);
             		try {
-            			json.put("baconNumber", size / 2);
-    					json.put("baconPath", tmp);
-    				} catch (JSONException e) {
-    					e.printStackTrace();
-    				}
+						json.put("baconNumber", new Integer(record.get("length(p)", "")));
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
             	}
             	return json.toString();
             }
