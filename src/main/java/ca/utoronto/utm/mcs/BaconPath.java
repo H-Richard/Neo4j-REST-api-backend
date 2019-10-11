@@ -51,7 +51,7 @@ public class BaconPath implements HttpHandler{
     	  getPath(actorId, exchange);
       }
       else {
-    	  exchange.sendResponseHeaders(404, 0);
+    	  exchange.sendResponseHeaders(400, 0);
     	  Utils.sendEmptyBody(exchange);
       }
     } catch (Exception e) {
