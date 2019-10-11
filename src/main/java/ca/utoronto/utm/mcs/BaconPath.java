@@ -31,13 +31,15 @@ public class BaconPath implements HttpHandler{
     this.driver = driver;
   }
 
-  public void handle(HttpExchange exchange) {
+  public void handle(HttpExchange exchange) throws IOException {
     try {
       if (exchange.getRequestMethod().equals("GET")) {
           handleGet(exchange);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+        e.printStackTrace();
+        exchange.sendResponseHeaders(400, 0);
+        Utils.sendEmptyBody(exchange);
     }
   }
   
@@ -69,20 +71,34 @@ public class BaconPath implements HttpHandler{
             public String execute( Transaction tx )
             {
             	JSONObject json = new JSONObject();
-            	StatementResult result = tx.run(String.format("MATCH p=shortestPath((n:actor {name: 'Kevin Bacon'})-[rel:ACTED_IN*]-(b:actor {actorId: '%s'})) RETURN rel;", actorId));
-            	JSONArray array = new JSONArray();
-            	
-            	if(!result.hasNext()) {
+            	StatementResult result = tx.run(String.format("MATCH p=shortestPath((n:actor {name: 'Kevin Bacon'})-[rel:ACTED_IN*]-(b:actor {actorId: '%s'})) RETURN extract(n IN nodes(p)) AS extracted;", actorId));
+
+             	if(!result.hasNext()) {
             		return "";
             	}
             	else {
-            		Record record = result.next();
-            		int size = record.get(0).size();
+                    Record record = result.next();
             		ArrayList<JSONObject> tmp = new ArrayList<JSONObject>();
-            		for(int i = 0;i<size;i++) {
+                    JSONObject o1 = new JSONObject();
+                    JSONObject o2 = new JSONObject();
+                    try{
+                        o1.put("actorId", record.get(0).get(0).get("actorId",""));
+                        o1.put("movieId",record.get(0).get(1).get("movieId",""));
+                        o2.put("actorId", record.get(0).get(2).get("actorId", ""));
+                        o2.put("movieId", record.get(0).get(1).get("movieId", ""));
+
+                    }catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    tmp.add(o1);
+                    tmp.add(o2);
+
+                    int size = record.get(0).size();
+
+            		for(int i = 3;i<size;i+=2) {
             			JSONObject o = new JSONObject();
             			try {
-							o.put("actorId", record.get(0).get(i).get("actorId", ""));
+							o.put("actorId", record.get(0).get(i+1).get("actorId", ""));
 							o.put("movieId", record.get(0).get(i).get("movieId", ""));
 						} catch (JSONException e) {
 							e.printStackTrace();
@@ -91,7 +107,8 @@ public class BaconPath implements HttpHandler{
             		}
             		Collections.reverse(tmp);
             		try {
-            			json.put("baconNumber", size / 2);
+            			json.put("baconNumber", (size - 1) / 2);
+            			//System.out.println(size);
     					json.put("baconPath", tmp);
     				} catch (JSONException e) {
     					e.printStackTrace();
