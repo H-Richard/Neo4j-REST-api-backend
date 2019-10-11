@@ -60,8 +60,10 @@ public class GetMovie implements HttpHandler{
             public String execute( Transaction tx )
             {
             	JSONObject json = new JSONObject();
-            	StatementResult name = tx.run(String.format("MATCH (n:movie) WHERE n.movieId = '%s' RETURN n.name", movieId));
-            	StatementResult actors = tx.run(String.format("match (m:movie {movieId: '%s'})<-[r:ACTED_IN]-(a:actor) return a.actorId;", movieId));
+            	StatementResult name = tx.run(String.format("MATCH (n:movie)" +
+                        "WHERE n.movieId = '%s' RETURN n.name", movieId));
+            	StatementResult actors = tx.run(String.format("match(m:movie {movieId: '%s'})<-[r:ACTED_IN]-(a:actor)" +
+                        "return a.actorId;", movieId));
             	Record record;
             	try {
 	            	json.put("movieId", movieId);
